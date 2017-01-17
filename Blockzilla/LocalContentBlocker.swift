@@ -6,6 +6,7 @@ import Foundation
 
 protocol LocalContentBlockerDelegate: class {
     func localContentBlocker(_ localContentBlocker: LocalContentBlocker, didReceiveDataForMainDocumentURL url: URL?)
+    func localContentBlocker(didPushState state: String)
 }
 
 class LocalContentBlocker: URLProtocol, URLSessionDelegate, URLSessionDataDelegate {
@@ -29,6 +30,13 @@ class LocalContentBlocker: URLProtocol, URLSessionDelegate, URLSessionDataDelega
     }
 
     override class func canInit(with request: URLRequest) -> Bool {
+        if let url = request.url, url.host == "localhost", let query = url.query {
+            DispatchQueue.main.async {
+                LocalContentBlocker.delegate?.localContentBlocker(didPushState: query)
+            }
+            return false
+        }
+
         return true
     }
 

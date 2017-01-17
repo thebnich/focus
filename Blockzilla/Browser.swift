@@ -185,6 +185,7 @@ extension Browser: UIWebViewDelegate {
         if !webView.isLoading, isLoading {
             isLoading = false
             delegate?.browserDidFinishNavigation(self)
+            webView.stringByEvaluatingJavaScript(from: "(function () { var oldState = history.pushState; history.pushState = function(obj, title, url) { oldState.apply(this, arguments); var xhr = new XMLHttpRequest(); xhr.open('GET', 'https://localhost/?url=' + escape(url), true); xhr.send(); }; }) ();")
         }
 
         updatePostLoad()
@@ -211,7 +212,7 @@ extension Browser: UIWebViewDelegate {
         }
     }
 
-    func updateBackForwardStates(_ webView: UIWebView) {
+    fileprivate func updateBackForwardStates(_ webView: UIWebView) {
         if canGoBack != webView.canGoBack {
             canGoBack = webView.canGoBack
         }
@@ -228,6 +229,12 @@ extension Browser: LocalContentBlockerDelegate {
         if self.pendingURL == url {
             self.url = url
         }
+    }
+
+    func localContentBlocker(didPushState state: String) {
+        guard let webView = webView else { return }
+
+        updateBackForwardStates(webView)
     }
 }
 
