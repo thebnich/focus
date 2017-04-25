@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Foundation
+import AutocompleteTextField
 import SnapKit
 
 protocol URLBarDelegate: class {
@@ -84,7 +85,7 @@ class URLBar: UIView {
         urlText.rightViewMode = .whileEditing
         urlText.setContentHuggingPriority(1000, for: .vertical)
         urlText.autocompleteDelegate = self
-        urlText.source = domainCompletion
+        urlText.completionSource = domainCompletion
         urlText.accessibilityIdentifier = "URLBar.urlText"
         textAndLockContainer.addSubview(urlText)
 
@@ -509,6 +510,10 @@ extension URLBar: AutocompleteTextFieldDelegate {
     func autocompleteTextField(_ autocompleteTextField: AutocompleteTextField, didTextChange text: String) {
         autocompleteTextField.rightView?.isHidden = text.isEmpty
         delegate?.urlBar(self, didEnterText: text)
+    }
+
+    func autocompleteTextFieldShouldEndEditing(_ autocompleteTextField: AutocompleteTextField) -> Bool {
+        return true
     }
 }
 
